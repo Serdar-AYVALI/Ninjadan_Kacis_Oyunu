@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ninjadan Kaçış</title>
+    <link rel="icon" href="ninjaYildizi.png" />
+    <style>
+        /* Canvas özelliklerinin tanımlanması */
+        canvas {
+            border: 10px solid #95311d;
+        }
+
+        /* Body özelliklerinin tanımlanması */
+        body {
+            background: #53525f;
+            font-family: sans-serif;
+            /*  color: #fff;
+            font-size: 2em; */
+            text-align: center;
+            /*
+            padding: 150px;
+            margin: 0;
+            */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .menu,
+        .kılavuz,
+        .oyun-bitti {
+            width: 700px;
+            height: 420px;
+            border: 10px solid #95311d;
+            background-image: url("uzay.jpg");
+            font-size: 20px;
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+            color: #f1ff34;
+        }
+
+        /* Buton özelliklerinin tanımlanması */
+        .button {
+            display: inline-block;
+            padding: 15px 25px;
+            font-size: 24px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            color: #fff;
+            background-color: #f15120;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px #999;
+        }
+
+        /* Buton üzerine gelinceki özellikleri */
+        .button:hover {
+            color: #2a2525;
+            background-color: #5bf21a;
+        }
+
+        /* Butona basıldığındaki özellikleri */
+        .button:active {
+            color: #2a2525;
+            background-color: #3e8e42;
+            box-shadow: 0 2px #666;
+            transform: translateY(4px);
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!-- menü sayfası -->
+    <div class="menu">
+
+        <div>
+            <button class="button" onclick="setTimeout(menuGizle, 500), setTimeout(oyunBasla, 500) ">Oyuna
+                Başla</button>
+        </div><br />
+        <div>
+            <button class="button" onclick="menuGizle(), kılavuzGoster()">Nasıl Oynanır?</button>
+        </div>
+
+
+    </div>
+
+    <!-- kullanım kılavuzu sayfası -->
+    <div class="kılavuz">
+        <div vertical-align="middle" align="center">
+            Ninjaların saldırısına uğradık!<br />
+            Onlardan kaçmak için ok tuşlarını ve ya w-a-s-d tuşlarını kullanabilirsin.<br />
+            Elinden geldiğince onlardan kaçarak kendini koru!<br />
+            Bakalım Ninja saldırılarına ne kadar dayanabileceksin...<br /><br />
+            <button class="button" onclick="kılavuzGizle(), menuGoster()">Ana Menü</button>
+        </div>
+
+
+
+
+    </div>
+
+
+    <div class="oyun-bitti" style="font-size: 25px;">
+        !!!Oyunu Bitti!!!<br /><br />
+        <div id="score" style="font-size: 30px;">Score</div><br />
+        Tebrikler<br /><br />
+        <a href="index.html"><button class="button" onclick="oyunBittiGizle(), oyunBasla()">Tekrar Oyna</button></a>
+    </div>
+
+
+    <script>
+        const menu = document.querySelector('.menu');
+        const oyunBitti = document.querySelector('.oyun-bitti');
+        const kılavuz = document.querySelector('.kılavuz');
+        var scoreMetni = document.getElementById("score");
+
+        kılavuz.style.display = 'none';
+        oyunBitti.style.display = 'none';
+
+        function menuGoster() {
+            menu.style.display = 'table-cell';
+        }
+
+        function menuGizle() {
+            menu.style.display = 'none';
+        }
+
+        function kılavuzGoster() {
+            kılavuz.style.display = 'table-cell';
+        }
+
+        function kılavuzGizle() {
+            kılavuz.style.display = 'none';
+
+        }
+
+        function oyunBittiGizle() {
+            oyunBitti.style.display = 'none';
+        }
+
+        var uzayGemisi;
+        var ninjaYildizlari = [];
+        var skor;
+        var score;
+
+        function oyunBasla() {
+
+            uzayGemisi = new ozellikler(40, 40, "uzayGemisi.png", 350, 210, "resim");
+            uzay = new ozellikler(700, 420, "uzay2.png", 0, 0, "arkaplan");
+            skor = new ozellikler("30px", "Consolas", "#7fff00", 280, 40, "metin");
+            oyunAlani.start();
+        }
+
+        var oyunAlani = {
+            canvas: document.createElement("canvas"),
+            start: function () {
+                this.canvas.width = 700;
+                this.canvas.height = 420;
+                this.context = this.canvas.getContext("2d");
+                document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+                this.frameNo = 0;
+                this.interval = setInterval(oyunAlaniniGuncelle, 20);
+                window.addEventListener('keydown', function (e) {
+                    oyunAlani.keys = (oyunAlani.keys || []);
+                    oyunAlani.keys[e.keyCode] = (e.type == "keydown");
+                })
+                window.addEventListener('keyup', function (e) {
+                    oyunAlani.keys[e.keyCode] = (e.type == "keydown");
+                })
+            },
+            clear: function () {
+                this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            },
+            stop: function () {
+                clearInterval(this.interval);
+            }
+        }
+
+        function ozellikler(genislik, uzunluk, renk, x, y, cins) {
+            this.cins = cins;
+            if (cins == "resim" || cins == "arkaplan") {
+                this.image = new Image();
+                this.image.src = renk;
+            }
+            this.genislik = genislik;
+            this.uzunluk = uzunluk;
+            this.speedX = 0;
+            this.speedY = 0;
+            this.x = x;
+            this.y = y;
+            this.guncelle = function () {
+                ctx = oyunAlani.context;
+                if (this.cins == "metin") {
+                    ctx.font = this.genislik + " " + this.uzunluk;
+                    ctx.fillStyle = renk;
+                    ctx.fillText(this.metin, this.x, this.y);
+                }
+                else if (cins == "resim" || cins == "arkaplan") {
+                    ctx.drawImage(this.image,
+                        this.x,
+                        this.y,
+                        this.genislik, this.uzunluk);
+                    if (cins == "arkaplan") {
+                        ctx.drawImage(this.image,
+                            this.x + this.genislik,
+                            this.y,
+                            this.genislik, this.uzunluk);
+                    }
+                }
+                else {
+                    ctx.fillStyle = renk;
+                    ctx.fillRect(this.x, this.y, this.genislik, this.uzunluk);
+                }
+            }
+
+
+            this.yeniPozisyon = function () {
+
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.cins == "arkaplan") {
+                    if (this.x == -(this.genislik)) {
+                        this.x = 0;
+                    }
+                }
+            }
+            this.carpisma = function (digerNesne) {
+                var myleft = this.x + 9;
+                var myright = this.x + (this.genislik) - 9;
+                var mytop = this.y + 9;
+                var mybottom = this.y + (this.uzunluk) - 8;
+                var otherleft = digerNesne.x;
+                var otherright = digerNesne.x + (digerNesne.genislik);
+                var othertop = digerNesne.y;
+                var otherbottom = digerNesne.y + (digerNesne.uzunluk);
+                var crash = true;
+                if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
+                    crash = false;
+                }
+                return crash;
+            }
+        }
+
+        function oyunAlaniniGuncelle() {
+            var x, y, uzunluk, minUzunluk, maxUzunluk;
+            var rasgeleX = [];
+            var rasgeleY = [];
+            for (let i = 0; i < ninjaYildizlari.length; i += 1) {
+                if (uzayGemisi.carpisma(ninjaYildizlari[i])) {
+                    oyunAlani.stop();
+                    var canvas = document.querySelector('canvas');
+                    canvas.style.display = 'none';
+                    oyunBitti.style.display = 'table-cell';
+                    scoreMetni.innerHTML = "SKORUNUZ: " + score;
+                    return;
+                }
+            }
+            oyunAlani.clear();
+            uzay.speedX = -1;
+            uzay.yeniPozisyon();
+            uzay.guncelle();
+            oyunAlani.frameNo += 1;
+            score = oyunAlani.frameNo;
+            if (oyunAlani.frameNo == 1 || everyinterval(40)) { //50 yaklaşık 1 saniye
+                x = oyunAlani.canvas.width;
+                y = oyunAlani.canvas.height;
+
+                rasgeleX[0] = Math.floor(Math.random() * (x - 40) + 1);
+                rasgeleX[1] = x;//-40
+                rasgeleX[2] = Math.floor(Math.random() * (x - 40) + 1);
+                rasgeleX[3] = -40;
+
+                rasgeleY[0] = 0;
+                rasgeleY[1] = Math.floor(Math.random() * (y - 40) + 1);
+                rasgeleY[2] = y;//-40
+                rasgeleY[3] = Math.floor(Math.random() * y + 1);
+
+                var rasgeleIndex = Math.floor(Math.random() * 4);
+
+                ninjaYildizlari.push(new ozellikler(40, 40, "ninjaYildizi.png", rasgeleX[rasgeleIndex], rasgeleY[rasgeleIndex], "resim"));
+
+                var sonEklenenNinjaYildizi = ninjaYildizlari.length - 1;
+                var deltaX = uzayGemisi.x - rasgeleX[rasgeleIndex];
+                var deltaY = uzayGemisi.y - rasgeleY[rasgeleIndex];
+                var egim = deltaY / deltaX;
+                var ninjaYildiziHizi = 4;
+                if (deltaX >= 0) {
+                    ninjaYildizlari[sonEklenenNinjaYildizi].speedX = ninjaYildiziHizi + 1;
+                }
+                else {
+                    ninjaYildizlari[sonEklenenNinjaYildizi].speedX = -ninjaYildiziHizi;
+                }
+                if ((ninjaYildiziHizi * egim) > 5) {
+                    ninjaYildizlari[sonEklenenNinjaYildizi].speedY = ninjaYildiziHizi;
+                }
+                else if (deltaY >= 0) {
+                    ninjaYildizlari[sonEklenenNinjaYildizi].speedY = ninjaYildiziHizi * egim;
+                }
+                if ((ninjaYildiziHizi * egim) < -5) {
+                    ninjaYildizlari[sonEklenenNinjaYildizi].speedY = -ninjaYildiziHizi;
+                }
+                else {
+                    ninjaYildizlari[sonEklenenNinjaYildizi].speedY = -ninjaYildiziHizi * egim;
+                }
+
+            }
+
+            for (let i = 0; i < ninjaYildizlari.length; i += 1) {
+
+                ninjaYildizlari[i].yeniPozisyon();
+                ninjaYildizlari[i].guncelle();
+            }
+            uzayGemisi.speedX = 0;
+            uzayGemisi.speedY = 0;
+            if ((oyunAlani.keys && oyunAlani.keys[65]) || (oyunAlani.keys && oyunAlani.keys[37])) { uzayGemisi.speedX = -6; }//-3,2,-2,2
+            if ((oyunAlani.keys && oyunAlani.keys[68]) || (oyunAlani.keys && oyunAlani.keys[39])) { uzayGemisi.speedX = 5; }
+            if ((oyunAlani.keys && oyunAlani.keys[87]) || (oyunAlani.keys && oyunAlani.keys[38])) { uzayGemisi.speedY = -5; }
+            if ((oyunAlani.keys && oyunAlani.keys[83]) || (oyunAlani.keys && oyunAlani.keys[40])) { uzayGemisi.speedY = 5; }
+
+            if (uzayGemisi.x <= -1) {
+                uzayGemisi.speedX = 1;
+            }
+            if (uzayGemisi.y <= -1) {
+                uzayGemisi.speedY = 1;
+            }
+            if ((uzayGemisi.x) + 40 >= 701) {
+                uzayGemisi.speedX = -1;
+            }
+            if ((uzayGemisi.y) + 40 >= 421) {
+                uzayGemisi.speedY = -1;
+            }
+            skor.metin = "SKOR: " + oyunAlani.frameNo;
+            skor.guncelle();
+            uzayGemisi.yeniPozisyon();
+            uzayGemisi.guncelle();
+        }
+
+        function everyinterval(n) {
+            if ((oyunAlani.frameNo / n) % 1 == 0) { return true; }
+            return false;
+        }
+
+
+    </script>
+
+</body>
+
+</html>
