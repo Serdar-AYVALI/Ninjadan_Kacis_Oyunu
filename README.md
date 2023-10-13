@@ -1,5 +1,6 @@
 # Ninjadan Kaçıs Oyunu
 * Web Tabanlı Programlama dersi için HTML, CSS ve JS kullanarak kodladığım Ninjadan Kaçış oyunu projem
+* http://ninjadan-kacis.eu5.org
 
 ## ~ Oyunun Oynanışı
 * Sana doğru gel Ninja Yıldızlarından korunabilmeniz için ok tuşlarını ve ya w-a-s-d tuşlarını kullanabilirsiniz.
